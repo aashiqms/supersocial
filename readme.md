@@ -1,34 +1,21 @@
 ### Create virtual environment
+
 - python3 -m venv supersocial
 
 ### Activate virtual environment
+
 - cd supersocial/bin
-- source activate
-### plantuml examples
-```puml
-Alice -> Bob: Authentication Request
-Bob --> Alice: Authentication Response
+- source activate in linux or activate in windows
 
-Alice -> Bob: Another authentication Request
-Alice <-- Bob: Another authentication Response
-@enduml
-```
-```puml
-@startuml
-actor Foo1
-boundary Foo2
-control Foo3
-entity Foo4
-database Foo5
-collections Foo6
-Foo1 -> Foo2 : To boundary
-Foo1 -> Foo3 : To control
-Foo1 -> Foo4 : To entity
-Foo1 -> Foo5 : To database
-Foo1 -> Foo6 : To collections
+### Initializing git
 
-@enduml
-```
+- git init
+- git add -A
+- git commit -m "my first commit"
+- To set remote url: git remote add origin https://github.com/aashiqms/supersocial
+    - To change remote url: git remote set-url origin https://github.com/aashiqms/supersocial
+- git push origin master
+
 ### Project Key Features
 - Groups
 - Multiple users and authentications
@@ -37,6 +24,7 @@ Foo1 -> Foo6 : To collections
 - Multiple Applications
 
 ### Starting Django project
+
 - pip install django
 - django-admin startproject supersocial
 ### Starting our first app named accounts
@@ -65,7 +53,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIR = [os.path.join(BASE_DIR, 'static')]
 ```
 
-### Creating templates that we are always going to use in this website
+### Creating templates that we are always going to use in this website inside supersocial -> templates -> base.html, index.html
 
 - base.html
 ```html
@@ -93,10 +81,14 @@ STATICFILES_DIR = [os.path.join(BASE_DIR, 'static')]
 ```
 
 ### Connecting TemplateView from views.py with index.html template
+
 #### Template View
+
 -  TemplateView extends the base class to make it also render a template.
 - Renders a given template, with the context containing parameters captured in the URL.
+
 ##### Using TemplateView to display a template(index.html) inside views.py
+
 - views.py
 ```python
 from django.views.generic import TemplateView
@@ -110,6 +102,7 @@ home_page_view = HomePage.as_view()
 
 ```
 - urls.py
+
 ```python
 from django.contrib import admin
 from django.urls import path, include
@@ -129,8 +122,11 @@ urls.py -> views.py
 views.py -> template_name__index.html
 @enduml
 ```
+
 # Creating accounts Login/Logout functionality for our project
+
 ### models.py creating User Model
+
 ```python
 from django.db import models
 from django.contrib import auth
@@ -293,7 +289,8 @@ urlpatterns = [
 
 
  - the line  href="{% url 'accounts:logout' %}" class="btn btn-simple">Log out is used to provide logout option if the user is logged in we use the logout as we the provided apps_name and view name in urls.py
- ### Adding Login redirect and Logout redirect url inside settings.py
+ 
+### Adding Login redirect and Logout redirect url inside settings.py
  
 ### settings.py LOGIN_REDIRECT_URL AND LOGOUT_REDIRECT_URL
  ```python
@@ -368,5 +365,19 @@ urlpatterns = [
 - python manage.py runserver
 - visit localhost:8000
 
+# Groups and Posts applications
 
+- Now we will begin setting up views, urls and templates for the groups and posts applications.
+- Given that they are interconnected we have to work with them concurrently.
+- Lets start by setting up the files.
+
+### startapp groups and posts
+
+- python manage.py startapp posts
+- python manage.py startapp groups
+
+### creating templates folder/files inside groups and posts
+
+- posts -> templates -> posts -> _post.html, post_base.html, post_confirm_delete.html, post_delete.html, post_form.html, post_list.html, user_post_list.html
+- groups -> templates -> groups -> group_base.html, group_detail, group_form.html, group_list.html
 

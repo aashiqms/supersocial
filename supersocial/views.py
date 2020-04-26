@@ -10,7 +10,7 @@ class TestPage(TemplateView):
 
 
 class ThanksPage(TemplateView):
-    template_name = 'index.html'
+    template_name = 'thanks.html'
 
 
 home_page_view = HomePage.as_view()
