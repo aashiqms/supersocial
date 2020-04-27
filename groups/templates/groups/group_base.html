@@ -1,10 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% block content %}
+<div class="flex-container">
+<div class="item-1-group_base">
+    {% block pregroup %}{% endblock %}
+    {% block group_content %}{% endblock %}
+    {% block postgroup %}{% endblock %}
+</div>
 
-</body>
-</html>
+</div>
+{% endblock %}

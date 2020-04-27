@@ -365,6 +365,9 @@ urlpatterns = [
 - python manage.py runserver
 - visit localhost:8000
 
+### Accounts app flow diagram
+
+
 # Groups and Posts applications
 
 - Now we will begin setting up views, urls and templates for the groups and posts applications.
@@ -380,4 +383,268 @@ urlpatterns = [
 
 - posts -> templates -> posts -> _post.html, post_base.html, post_confirm_delete.html, post_delete.html, post_form.html, post_list.html, user_post_list.html
 - groups -> templates -> groups -> group_base.html, group_detail, group_form.html, group_list.html
+
+#### building models.py for groups and posts applications
+
+### Creating models for groups app
+
+- models.py
+
+### Install misaka:
+
+import masaka allows us to user links or markdown texts in comments
+
+- To install misaka following dependencies must be satisfied
+- Secure Sockets Layer toolkit - development files
+    - This package is part of the OpenSSL project's implementation of the SSL and TLS cryptographic protocols for secure communication over the Internet. It contains development libraries, header files, and manpages for libssl and libcrypto. 
+
+```commandline
+sudo apt-get install build-essential libssl-dev libffi-dev python3-dev
+```
+- Install gcc
+```commandline
+pip install gcc7
+```
+
+- Now Install misaka with the following command
+```commandline
+pip install misaka
+```
+### Import Slugify
+
+- slugify allows us to remove characters that are alphanumeric, that is if we want to use urls with space it will automatically fill spaces with underscores and lower letter character after that.
+- from django.utils.text import slugify
+
+### on_delete=models.CASCADE
+
+- CASCADE: When the referenced object is deleted, also delete the objects that have references to it (When you remove a blog post for instance, you might want to delete comments as well). SQL equivalent: CASCADE.
+
+### models.py groups
+
+```python
+from django.db import models
+from django import template
+from django.contrib.auth import get_user_model
+from django.urls import reverse
+from django.utils.text import slugify
+
+import misaka
+
+
+User = get_user_model()
+
+
+register = template.Library()  # custom template tag
+
+
+class Group(models.Model):
+    name = models.CharField(max_length=256, unique=True)
+    slug = models.SlugField(allow_unicode=True, unique=True)
+    description = models.TextField(max_length=500, blank=True, default='')
+    description_html = models.TextField(editable=False, default='', blank=True)
+    members = models.ManyToManyField(User, through='GroupMember')
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        self.description_html = misaka.html(self.description)
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('groups:single', kwargs={'slug': self.slug})
+
+    class Meta:
+        ordering = ['name']
+
+
+class GroupMember(models.Model):
+    group = models.ForeignKey(Group, related_name='memberships', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='user_groups', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.user.username
+
+    class Meta:
+        unique_together = ('group', 'user')
+
+
+```
+**code explanation**
+- User = get_user_model() returns user model from Django's default User model for current user, allows us to call things from current user's session
+- register = template.Library()  # custom template tag will be explained later
+- Create a new class named Group which inherits from Model class(base class) present inside of models module
+    - **module:** _A module is a file containing Python definitions and statements. The file name is the module name with the suffix .py appended. Within a module, the module’s name (as a string) is available as the value of the global variable  ```__name___```
+
+- **slug**  
+```python
+slug = models.SlugField(allow_unicode=True, unique=True)
+```
+# Slug Definition
+# example of slugify in samples
+
+- A "slug" is a way of generating a valid URL, generally using data already obtained. For instance, a slug uses the title of an article to generate a URL. I advise to generate the slug by means of a function, given the title (or another piece of data), rather than setting it manually.
+- sample example:
+```html
+<title> new website page </title>
+<p> A silly comedy movie </p>
+<slug> new-website-page </slug>
+```
+sample models.py
+```python
+class Article(models.Model):
+    title = models.CharField(max_length=100)
+    content = models.TextField(max_length=1000)
+    slug = models.SlugField(max_length=40)
+```
+- How would you reference this object with a URL and with a meaningful name? You could for instance use Article.id so the URL would look like this:
+```html
+www.example.com/article/23
+```
+- Or, you might want to reference the title like this,:
+```html
+www.example.com/article/new website page
+``` 
+- since spaces are not valid in url they are replaced by %20
+```html
+www.example.com/article/new%20website%20page
+```
+- Both attempts are not resulting in very meaningful, easy-to-read URL. This is better:
+```html
+www.example.com/article/new-website-page
+```
+# slugify
+```python
+class Article(models.Model):
+    title = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=100, unique=True)
+```
+- If slug url needs to be unique add unique=True
+- sample models.py using slugify
+```python
+from django.template.defaultfilters import slugify
+
+class Article(models.Model):
+    title = models.CharField(max_length=100)
+
+    def slug(self):
+        return slugify(self.title)
+```
+# slugify usage in this project
+```python
+class Group(models.Model):
+    name = models.CharField(max_length=256, unique=True)
+    slug = models.SlugField(allow_unicode=True, unique=True)
+    description = models.TextField(max_length=500, blank=True, default='')
+    description_html = models.TextField(editable=False, default='', blank=True)
+    members = models.ManyToManyField(User, through='GroupMember')
+```
+```python
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        self.description_html = misaka.html(self.description)
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('groups:single', kwargs={'slug': self.slug})
+```
+1. Defining slug Field slug = models.SlugField(allow_unicode=True, unique=True) and giving it unique parameter
+2. allow_unicode=True parameter allows unicode charcter in slug in addition to ASCII characters.
+3. Using name to provide url words for slugiy self.slug = slugify(self.name)
+4. getting absolute url of the current slug return reverse('groups:single', kwargs={'slug': self.slug})
+# get_absolute_url()
+- First of all, when it comes to web development you really want to avoid hard coding paths in your templates. The reason for this is that paths might change, and it will be a hassle to go through all your HTML and templates to find every single URL or path and update it manually. It makes your code much harder to maintain.
+
+- The solution to this is to define functions that return the URL instead. This is where get_absolute_url() comes into the picture.
+```html
+<!-- Bad -->
+<a href="/language/category/product/{{product.pk}}">Link</a>
+
+```
+- good example models.py
+```python
+class Products(models.Model):
+    title = models.CharField(max_length=120)
+    slug = models.SlugField(blank=True, unique=True)
+    description = models.TextField()
+
+    def get_absolute_url(self):
+        return f"/products/{self.slug}/"
+```
+- example.html
+```html
+{% for obj in object_list  %}
+   <a href="{{obj.get_absolute_url}} ">{{obj.title}}</a> <br>
+{% endfor %}
+```
+- example urls.py
+```djangourlpath
+ path('/products/<slug>/', view=product_detail_view),
+```
+
+- Defining members Foriegn key inside Group model that interacts with User model
+```python
+members = models.ManyToManyField(User, through='GroupMember')
+```
+# ForeignKey
+- A many-to-one relationship. Requires two **positional arguments**: the class to which the model is related and the on_delete option.
+    - **Positional arguments** are arguments that need to be included in the proper position or order. The first positional argument always needs to be listed first when the function is called.
+
+- To create a recursive relationship – an object that has a many-to-one relationship with itself – use models.ForeignKey('self', on_delete=models.CASCADE).
+
+- If you need to create a relationship on a model that has not yet been defined, you can use the name of the model, rather than the model object itself:
+
+# ManyToManyField through_fields
+- Only used when a custom intermediary model is specified. Django will normally determine which fields of the intermediary model to use in order to establish a many-to-many relationship automatically. However, consider the following models:
+- models.py example for through_fields
+```python
+from django.db import models
+
+class Person(models.Model):
+    name = models.CharField(max_length=50)
+
+class Group(models.Model):
+    name = models.CharField(max_length=128)
+    members = models.ManyToManyField(
+        Person,
+        through='Membership',
+        through_fields=('group', 'person'),
+    )
+
+class Membership(models.Model):
+    group = models.ForeignKey(Group, on_delete=models.CASCADE)
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    inviter = models.ForeignKey(
+        Person,
+        on_delete=models.CASCADE,
+        related_name="membership_invites",
+    )
+    invite_reason = models.CharField(max_length=64)
+```
+- Membership has two foreign keys to Person (person and inviter), which makes the relationship ambiguous and Django can’t know which one to use. In this case, you must explicitly specify which foreign keys Django should use using through_fields, as in the example above.
+
+- through_fields accepts a 2-tuple ('field1', 'field2'), where field1 is the name of the foreign key to the model the ManyToManyField is defined on (group in this case), and field2 the name of the foreign key to the target model (person in this case).
+
+- When you have more than one foreign key on an intermediary model to any (or even both) of the models participating in a many-to-many relationship, you must specify through_fields. This also applies to recursive relationships when an intermediary model is used and there are more than two foreign keys to the model, or you want to explicitly specify which two Django should use.
+```python
+from django.db import models
+
+class Car(models.Model):
+    manufacturer = models.ForeignKey(
+        'Manufacturer',
+        on_delete=models.CASCADE,
+    )
+    # ...
+
+class Manufacturer(models.Model):
+    # ...
+    pass
+```
+https://docs.djangoproject.com/en/3.0/ref/models/fields/#django.db.models.ForeignKey
+# Databases
+![alt text](https://github.com/aashiqms/supersocial_images/blob/master/2020_04_27%202_13%20PM%20Office%20Lens%20(1).jpg?raw=true)
+![alt text](https://github.com/aashiqms/supersocial_images/blob/master/2020_04_27%202_13%20PM%20Office%20Lens%20(2).jpg?raw=true)
+![alt text](https://github.com/aashiqms/supersocial_images/blob/master/2020_04_27%202_13%20PM%20Office%20Lens%20(3).jpg?raw=true)
+![alt text](https://github.com/aashiqms/supersocial_images/blob/master/2020_04_27%202_13%20PM%20Office%20Lens%20(4).jpg?raw=true)
 

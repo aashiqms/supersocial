@@ -1,10 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'groups/group_base.html' %}
+{% block pregroup %}
+<h1>{{ group.name }}</h1> {% comment %}group is the lowercase of the actual Group model{% endcomment %}
+<h2>Member Count: {{ group.members.count }}</h2>
+    <div class="content">
+    {% if user in group.members.all %}
+        <a href="{% url 'groups:leave' slug=group.slug %}" class="btn btn-danger"><span class="glyphicon glyphicon-remove-circle">leave</span></a>
+        {% else %}
+                <a href="{% url 'groups:leave' slug=group.slug %}" class="btn btn-danger"><span class="glyphicon glyphicon-ok-circle">Join</span></a>
 
-</body>
-</html>
+
+    {% endif %}
+    </div>
+{% endblock %}
+
+{% block group_content %}
+<div class="flex-container">
+    <div class="item-1-group-detail">
+        {% if group.posts.count == 0 %}
+        <h2>No posts in the group yet</h2>
+        {% else %}
+        {% for post in group.posts.all %}
+            {% include 'posts/_post.html' %}
+        
+        {% endfor %}
+    {% endif %}
+    {% endblock %}
+        
+    </div>
+</div>
