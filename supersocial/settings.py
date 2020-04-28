@@ -40,8 +40,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-    'accounts',
+    'django_extensions',
     'bootstrap4',
+    'accounts',
     'groups',
     'posts'
 ]
@@ -128,3 +129,9 @@ STATIC_URL = '/static/'
 STATICFILES_DIR = [os.path.join(BASE_DIR, 'static')]
 LOGIN_REDIRECT_URL = 'test'
 LOGOUT_REDIRECT_URL = 'thanks'
+
+
+GRAPH_MODELS = {
+  'all_applications': True,
+  'group_models': True,
+}

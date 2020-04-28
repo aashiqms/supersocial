@@ -6,7 +6,7 @@ from django.utils.text import slugify
 
 import misaka
 
-
+    
 # returns user model currently active in this project, allows us to call things from current user's session
 
 User = get_user_model()
