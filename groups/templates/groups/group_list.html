@@ -1,10 +1,39 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'groups/group_base.html' %}
+{% block pregroup %}
+<div class="flex-container">
+    <div class="item-1-group-list">
+        {% if user.is_authenticated %}
+            <h2>Welcome back <a href="{% url 'posts:for_user' username=user.username %}">@{{ user.username }}</a></h2>
+        {% endif %}
+    <h2>Groups</h2>
+    <p>welcome to groups page</p>
+    {% if user.is_authenticated %}
+        <a href="{% url 'groups:create' %}" class="btn btn-danger"><span class="glyphicon glyphicon-plus-sign"></span></a>
+    {% endif %}
+    </div>
 
-</body>
-</html>
+    {% block group_content %}
+     <div class="item-2-form-list">
+     {% for group in object_list %}
+         <a href="{% url 'groups:single' slug=group.slug %}">
+         <h3 class="list-group-item-primary">{{ group.name }}</h3>
+         <div class="list-group-item-secondary">
+             {{ group.description_html|safe }}
+         </div>
+         <div class=""><span class="badge-primary">
+             {{ group.members.count }}
+         </span>
+         member{{ group.members.count|pluralize }}
+         </div>
+<div class=""><span class="badge-primary">
+             {{ group.posts.count }}
+         </span>
+         post{{ group.posts.count|pluralize }}
+         </div>
+         </a>
+     {% endfor %}
+
+</div>
+    {% endblock %}
+</div>
+{% endblock %}

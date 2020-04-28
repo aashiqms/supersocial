@@ -7,8 +7,6 @@
         <a href="{% url 'groups:leave' slug=group.slug %}" class="btn btn-danger"><span class="glyphicon glyphicon-remove-circle">leave</span></a>
         {% else %}
                 <a href="{% url 'groups:leave' slug=group.slug %}" class="btn btn-danger"><span class="glyphicon glyphicon-ok-circle">Join</span></a>
-
-
     {% endif %}
     </div>
 {% endblock %}
@@ -21,10 +19,8 @@
         {% else %}
         {% for post in group.posts.all %}
             {% include 'posts/_post.html' %}
-        
         {% endfor %}
     {% endif %}
     {% endblock %}
-        
     </div>
 </div>
