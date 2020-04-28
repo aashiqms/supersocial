@@ -705,3 +705,7 @@ last_login
 date_joined
 
     A datetime designating when the account was created. Is set to the current date/time by default when the account is created.
+
+# Project models visualized
+
+![alt text](https://github.com/aashiqms/supersocial/blob/master/my_project_visualized.png?raw=true)
