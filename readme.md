@@ -196,10 +196,12 @@ forms.py -> views.py
 {% load bootstrap4 %}
 {% block content %}
 <div class="flex-container">
-    <h1>Sign UP Here</h1>
-{% csrf_token %}
-    {% bootstrap_form form %}
-    <input type="submit" value="Sign Up" class="btn btn-success">
+    <h1>Sign Up</h1>
+    <form method="POST">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        <input type="submit" value="Sign Up" class="btn btn-primary">
+    </form>
 </div>
 {% endblock %}
 ```
