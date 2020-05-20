@@ -212,9 +212,11 @@ forms.py -> views.py
 {% block content %}
 <div class="flex-container">
     <h1>Login Here</h1>
-{% csrf_token %}
-    {% bootstrap_form form %}
-    <input type="submit" value="Login" class="btn btn-success">
+    <form method="POST">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        <input type="submit" value="Log In" class="btn btn-default">
+    </form>
 </div>
 {% endblock %}
 ```
